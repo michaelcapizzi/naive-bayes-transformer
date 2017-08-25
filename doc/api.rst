@@ -1,4 +1,5 @@
 API Documentation
 =================
 
-* :doc:`template`
+* :doc:`nb_transformer`
+* :doc:`nb_enhanced_classifier`

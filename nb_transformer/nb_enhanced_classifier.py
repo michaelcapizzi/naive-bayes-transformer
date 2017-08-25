@@ -21,7 +21,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
         A <list> of all possible labels that are used in the training set
     clf:
         Any instantiated `sklearn` classifier that
-        has either the attribute `.decision_function()` or `predict_proba()`
+        has either the attribute `.decision_function()` or `.predict_proba()`
     interpolation_factor: float
         The interpolation parameter to mix
         the Multinomial Naive Bayes weights with the Classifier's weights
