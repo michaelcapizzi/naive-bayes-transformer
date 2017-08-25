@@ -1,14 +1,12 @@
 import numpy as np
 from scipy import sparse
-from sklearn.base import TransformerMixin
+from sklearn.base import (BaseEstimator, TransformerMixin)
 
 
-class NaiveBayesTransformer(TransformerMixin):
+class NaiveBayesTransformer(BaseEstimator, TransformerMixin):
     """
     Feature transformation that uses the conditional probabilities from
     Naive Bayes as the feature values.
-    From the class NLP paper from Wang and Manning, 2012:
-        https://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf
 
     Parameters
     ----------
@@ -25,6 +23,10 @@ class NaiveBayesTransformer(TransformerMixin):
     _r : np.array
         The resulting ratio of conditional probabilities from Naive Bayes transformation
         which is applied in an elementwise multiplication to the existing feature matrix
+
+    References
+    ----------
+    .. [1] Wang, Sida. Baselines and Bigrams: Simple, Good Sentiment and Topic Classification. https://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf
 
     """
     def __init__(self, all_labels, label_of_interest, smoothing_factor=1):
@@ -50,24 +52,6 @@ class NaiveBayesTransformer(TransformerMixin):
         # get indices of label_of_interest
         idxs = np.where(as_array == self.label_of_interest)[0]
         return idxs
-
-    # def _get_negative_rows(self):
-    #     """
-    #     Finds all rows of data considered NOT to be the `label_of_interest`
-    #
-    #     Returns
-    #     -------
-    #     idxs : np.array
-    #         The array of indexes from self.labels that are "negative"
-    #     """
-    #     # ensure labels as np array
-    #     try:
-    #         as_array = np.array(self.labels)
-    #     except:
-    #         as_array = self.labels
-    #     # get indices of label_of_interest
-    #     idxs = np.where(as_array != self.label_of_interest)[0]
-    #     return idxs
 
     def _get_p_not_p(self, feature_matrix):
         """
