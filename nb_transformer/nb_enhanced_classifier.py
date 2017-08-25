@@ -39,7 +39,8 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
                  clf=LinearSVC(
                      loss='squared_hinge',
                      penalty='l2',
-                     class_weight='balanced'
+                     class_weight='balanced',
+                     dual=False
                  ),
                  interpolation_factor=0.25
                  ):
@@ -154,7 +155,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
                 clf.fit(X_transformed, labels_dict[l])
                 # update weights with interpolation
                 try:
-                    self.ovr_classifiers.coef_ = self._interpolate(self.ovr_classifiers.coef_)
+                    clf.coef_ = self._interpolate(clf.coef_)
                 except:
                     if l == list(self.ovr_classifiers.keys())[0]:
                         warnings.warn(
