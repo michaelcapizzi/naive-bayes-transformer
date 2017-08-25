@@ -26,7 +26,8 @@ class NaiveBayesTransformer(BaseEstimator, TransformerMixin):
 
     References
     ----------
-    .. [1] Wang, Sida. Baselines and Bigrams: Simple, Good Sentiment and Topic Classification. https://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf
+    .. [1] Wang, Sida. Baselines and Bigrams: Simple, Good Sentiment and Topic Classification.
+            https://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf
 
     """
     def __init__(self, all_labels, label_of_interest, smoothing_factor=1):
@@ -41,7 +42,7 @@ class NaiveBayesTransformer(BaseEstimator, TransformerMixin):
 
         Returns
         -------
-        idxs : np.array
+        idxs : array-like
             The array of indexes from self.labels that are "positive"
         """
         # ensure labels as np array
@@ -65,9 +66,9 @@ class NaiveBayesTransformer(BaseEstimator, TransformerMixin):
 
         Returns
         -------
-        p : np.array
+        p : array-like of shape = [1, n_features]
             The *unnormalized* conditional probabilities of each word in the "positive" class
-        not_p : np.array
+        not_p : array-like of shape = [1, n_features]
             The *unnormalized* conditional probabilities of each word in the "negative" class
         """
         # find indices of p and not_p
@@ -92,16 +93,16 @@ class NaiveBayesTransformer(BaseEstimator, TransformerMixin):
 
         Parameters
         ----------
-        un_normalized_p: np.array
+        un_normalized_p: array-like of shape = [1, n_features]
             The *unnormalized* conditional probabilities of each word in the "positive" class
             The [0]th output of `._get_p_not_p()`
-        un_normalized_not_p: np.array
+        un_normalized_not_p: array-like of shape = [1, n_features]
             The *unnormalized* conditional probabilities of each word in the "negative" class
             The [1]st output of `._get_p_not_p()`
 
         Returns
         -------
-        r : np.array
+        r : array-like of shape = [1, n_features]
             The resulting ratio of conditional probabilities from Naive Bayes transformation
         """
         # normalize
@@ -122,7 +123,7 @@ class NaiveBayesTransformer(BaseEstimator, TransformerMixin):
 
         Returns
         -------
-        transformed_features: np.array
+        transformed_features: array-like of shape = [n_samples, n_features]
             The transformed feature space where word counts have been transformed with
             an elementwise multiplication of the ratio of conditional probabilities from Naive Bayes
 
