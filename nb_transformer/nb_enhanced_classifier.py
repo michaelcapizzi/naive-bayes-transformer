@@ -134,7 +134,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
                 self.ovr_classifiers[0].coef_ = self._interpolate(self.ovr_classifiers[0].coef_)
             except:
                 warnings.warn(
-                    "the classifier you instantiated does not have an attribute `.coef_`"
+                    "the classifier you instantiated does not have an attribute `.coef_`; "
                     "interpolation will not occur"
                 )
         else:
@@ -159,13 +159,13 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
                 except:
                     if l == list(self.ovr_classifiers.keys())[0]:
                         warnings.warn(
-                            "the classifier you instantiated does not have an attribute `.coef_`"
+                            "the classifier you instantiated does not have an attribute `.coef_`; "
                             "interpolation will not occur"
                         )
 
     def _interpolate(self, coeffs):
         """
-        Applies an interpolation function to the learned coefficients of the Classifier
+        Applies an interpolation  to the learned coefficients of the Classifier
 
         Parameters
         ----------
@@ -199,6 +199,40 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
         all_distances: array-like with shape = [n_labels, n_samples]
 
         """
+
+        # TODO see error below when using `predict_proba()`
+        """
+                ---------------------------------------------------------------------------
+        ValueError                                Traceback (most recent call last)
+        <ipython-input-94-ec89d8dd9a81> in <module>()
+              3     print("testing transformed {}".format(clf_name))
+              4     preds = clf.predict(newsgroups_test_features_uni)
+        ----> 5     newsgroups_nb_transformed_uni_results[clf_name] = accuracy_score(data_test.target, preds)
+              6 newsgroups_nb_transformed_uni_results
+
+        ~/anaconda3/envs/nb_plus_svm/lib/python3.6/site-packages/sklearn/metrics/classification.py in accuracy_score(y_true, y_pred, normalize, sample_weight)
+            174
+            175     # Compute accuracy for each possible representation
+        --> 176     y_type, y_true, y_pred = _check_targets(y_true, y_pred)
+            177     if y_type.startswith('multilabel'):
+            178         differing_labels = count_nonzero(y_true - y_pred, axis=1)
+
+        ~/anaconda3/envs/nb_plus_svm/lib/python3.6/site-packages/sklearn/metrics/classification.py in _check_targets(y_true, y_pred)
+             69     y_pred : array or indicator matrix
+             70     """
+        ---> 71     check_consistent_length(y_true, y_pred)
+        72     type_true = type_of_target(y_true)
+        73     type_pred = type_of_target(y_pred)
+
+        ~/anaconda3/envs/nb_plus_svm/lib/python3.6/site-packages/sklearn/utils/validation.py in check_consistent_length(*arrays)
+        171     if len(uniques) > 1:
+            172         raise ValueError("Found input variables with inconsistent numbers of"
+                                         --> 173                          " samples: %r" % [int(l) for l in lengths])
+        174
+        175
+
+        ValueError: Found input variables with inconsistent numbers of samples: [7532, 2]
+        """
         if not self.multiclass:
             # transform X
             X_transformed = self.nb_transformers[0].transform(X)
@@ -206,7 +240,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
                 final_distance = self.ovr_classifiers[0].decision_function(X_transformed)
             else:
                 warnings.warn(
-                    "classifier you instantiated does not have a method, `decision_function()`"
+                    "classifier you instantiated does not have a method, `decision_function()`; "
                     "using `predict_proba()` instead"
                 )
                 final_distance = self.ovr_classifiers[0].predict_proba(X_transformed)
@@ -221,7 +255,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
                     distance = clf.decision_function(X_transformed)
                 else:
                     warnings.warn(
-                        "classifier you instantiated does not have a method, `decision_function()`"
+                        "classifier you instantiated does not have a method, `decision_function()`;"
                         "using `predict_proba()` instead"
                     )
                     distance = clf.predict_proba(X_transformed)
