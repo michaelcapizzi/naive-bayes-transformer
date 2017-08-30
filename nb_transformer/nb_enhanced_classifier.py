@@ -200,7 +200,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
 
         """
 
-        # TODO see error below when using `predict_proba()`
+        # TODO see error below when using `predict_proba()` when multiclass
         """
                 ---------------------------------------------------------------------------
         ValueError                                Traceback (most recent call last)
