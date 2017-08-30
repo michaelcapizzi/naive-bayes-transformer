@@ -3,4 +3,4 @@
 General examples
 ================
 
-Introductory examples.
+See the accompanying `jupyter notebook` for three full working examples.

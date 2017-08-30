@@ -19,8 +19,8 @@ except ImportError:
     sys.exit(1)
 
 setup(name='naive-bayes-transformer',
-      version='0.0.3',
-      description='A package implementing a Naive Bayes transformer (from Wang, Manning) and an applicable one-v-all classifier',
+      version='0.0.1',
+      description='A custom transformer utilizing Naive Bayes features',
       author='Michael Capizzi',
       packages=find_packages(),
       install_requires=INSTALL_REQUIRES,

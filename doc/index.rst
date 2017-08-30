@@ -1,26 +1,15 @@
-.. project-template documentation master file, created by
-   sphinx-quickstart on Mon Jan 18 14:44:12 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Naive Bayes Transformation
+==========================
 
-Welcome to sklearn-template's documentation!
-============================================
+This project applies the proposed feature transformation and classifier in the Wang, Sida 2016.
 
-This project is a reference implementation to anyone who wishes to develop
-scikit-learn compatible classes. It comes with a `template` module which
-contains a single estimator with unit tests.
-
+See the original paper here <https://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf>
 
     .. toctree::
-       :maxdepth: 2
+       :maxdepth: 3
        
        api
        auto_examples/index
-       ...
-
-See the `README <https://github.com/vighneshbirodkar/project-template/blob/master/README.md>`_
-for more information.
-
 
 Indices and tables
 ==================
