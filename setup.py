@@ -18,11 +18,11 @@ except ImportError:
     print('scipy is required during installation')
     sys.exit(1)
 
-setup(name='sklearn-template',
+setup(name='naive-bayes-transformer',
       version='0.0.3',
-      description='A template for scikit-learn compatible packages',
-      author='Vighnesh Birodkar',
+      description='A package implementing a Naive Bayes transformer (from Wang, Manning) and an applicable one-v-all classifier',
+      author='Michael Capizzi',
       packages=find_packages(),
       install_requires=INSTALL_REQUIRES,
-      author_email='vighneshbirodkar@nyu.edu',
+      author_email='mcapizzi@email.arizona.edu',
       )
