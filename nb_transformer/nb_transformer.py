@@ -6,7 +6,8 @@ from sklearn.base import (
 )
 from sklearn.utils import (
     check_array,
-    assert_all_finite
+    assert_all_finite,
+    check_X_y
 )
 from sklearn.utils.validation import check_is_fitted
 
@@ -78,6 +79,7 @@ class NaiveBayesTransformer(BaseEstimator,TransformerMixin):
         not_p : array-like of shape = [1, n_features]
             The *unnormalized* conditional probabilities of each word in the "negative" class
         """
+        # checks
         feature_matrix = check_array(
             feature_matrix.toarray() if isinstance(feature_matrix, sparse.csr.csr_matrix)
             else feature_matrix
@@ -145,7 +147,16 @@ class NaiveBayesTransformer(BaseEstimator,TransformerMixin):
         return r
 
     def fit(self, X, y=None):
-        """Does nothing: this transformer is stateless."""
+        """
+        Saves the `r` vector (log-ratio vector) that will be applied during transformation
+
+        Parameters
+        ----------
+        X: array-like of shape = [n_samples, n_features]
+            Feature matrix representing the vectorized input
+
+        """
+        # checks
         X = check_array(
             X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X
         )
@@ -164,6 +175,7 @@ class NaiveBayesTransformer(BaseEstimator,TransformerMixin):
         _p, _not_p = self._get_p_not_p(X)
         # get r
         self._r = self._get_r(_p, _not_p)
+        # ensure is_fitted
         self.X_ = X
         self.y_ = y
         return self
@@ -184,6 +196,7 @@ class NaiveBayesTransformer(BaseEstimator,TransformerMixin):
             an elementwise multiplication of the ratio of conditional probabilities from Naive Bayes
 
         """
+        # checks
         X = check_array(
             X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X
         )
@@ -206,15 +219,14 @@ class NaiveBayesTransformer(BaseEstimator,TransformerMixin):
             transformed_features = X * self._r
         return transformed_features
 
+    def fit_transform(self, X, y=None):
+        """Runs fit() and transform() together."""
+        X, y = check_X_y(X, y)
+        assert_all_finite(X)
+        if y is None:
+            # fit method of arity 1 (unsupervised transformation)
+            return self.fit(X).transform(X)
+        else:
+            # fit method of arity 2 (supervised transformation)
+            return self.fit(X, y).transform(X)
 
-    # def fit_transform(self, X, y=None):
-    #     """Does nothing: this transformer is stateless."""
-    #     X, y = check_X_y(X, y)
-    #     assert_all_finite(X)
-    #     return self
-    #
-    # def score(self, X, y=None):
-    #     """Does nothing: this transformer is stateless."""
-    #     X, y = check_X_y(X, y)
-    #     assert_all_finite(X)
-    #     return self
