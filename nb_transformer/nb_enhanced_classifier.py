@@ -40,7 +40,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             https://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf
 
     """
-    def __init__(self, list_of_possible_classes=[0, 1],
+    def __init__(self,
                  clf=LinearSVC(
                      loss='squared_hinge',
                      penalty='l2',
@@ -49,10 +49,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
                  ),
                  interpolation_factor=0.25
                  ):
-        self.list_of_classes = list_of_possible_classes
-        self.multiclass, self.ovr_classifiers = self._build_ovr_classifiers(
-            list_of_possible_classes, clf
-        )
+        self.clf = clf
         self.interpolation_factor = interpolation_factor if interpolation_factor else 1.0
         self.nb_transformers = {}
 
@@ -130,6 +127,10 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
         X, y = check_X_y(
             X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X,
             y
+        )
+        self.list_of_classes = list(set(y))
+        self.multiclass, self.ovr_classifiers = self._build_ovr_classifiers(
+            self.list_of_classes, self.clf
         )
         if not self.multiclass:
             # transform X
