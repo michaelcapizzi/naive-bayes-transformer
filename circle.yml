@@ -2,16 +2,16 @@ machine:
   environment:
     # The github organization or username of the repository which hosts the
     # project and documentation.
-    USERNAME: "scikit-learn-contrib"
+    USERNAME: "michaelcapizzi"
 
     # The repository where the documentation will be hosted
-    DOC_REPO: "project-template"
+    DOC_REPO: "naive-bayes-transformer"
 
     # The base URL for the Github page where the documentation will be hosted
-    DOC_URL: ""
+    DOC_URL: "https://github.com/michaelcapizzi/naive-bayes-transformer/tree/master/doc"
 
     # The email is to be used for commits in the Github Page
-    EMAIL: "vnb222+ci@nyu.edu"
+    EMAIL: "mcapizzi@email.arizona.edu"
 
 dependencies:
 

@@ -8,13 +8,13 @@ environment:
     # /E:ON and /V:ON options are not enabled in the batch script interpreter
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci_scripts\\appveyor\\run_with_env.cmd"
-    WHEELHOUSE_UPLOADER_USERNAME: sklearn
+    WHEELHOUSE_UPLOADER_USERNAME: michaelcapizzi
     WHEELHOUSE_UPLOADER_SECRET:
-      secure: XzK+Mi6Ba5frV2B/jHq7h4aD8/nox9SsI3T8Kub1L2XNevRSIurUEry3PdWESzRY
+      secure: YUXaGrDQT6y0TMIYixx7L0qc+u37EV17q5gclngb7yg=
     MODULE: nb_transformer
     PROJECT_NAME: naive-bayes-transformer
     CLOUD_STORAGE: CLOUDFILES
-    CLOUD_CONTATINER: sklearn-template-trial
+    CLOUD_CONTATINER: naive-bayes-transformer
 
   matrix:
     - PYTHON: "C:\\Python27"
