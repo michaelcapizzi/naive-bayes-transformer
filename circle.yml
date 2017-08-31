@@ -8,7 +8,7 @@ machine:
     DOC_REPO: "naive-bayes-transformer"
 
     # The base URL for the Github page where the documentation will be hosted
-    DOC_URL: "https://github.com/michaelcapizzi/naive-bayes-transformer/tree/master/doc"
+    DOC_URL: "doc"
 
     # The email is to be used for commits in the Github Page
     EMAIL: "mcapizzi@email.arizona.edu"
