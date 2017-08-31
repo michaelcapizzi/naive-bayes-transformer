@@ -128,7 +128,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X,
             y
         )
-        self.list_of_classes = list(set(y))
+        self.list_of_classes = list(set(sorted(y)))
         self.multiclass, self.ovr_classifiers = self._build_ovr_classifiers(
             self.list_of_classes, self.clf
         )
@@ -136,8 +136,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             # transform X
             # considering last label in self.list_of_classes as the `positive`
             self.nb_transformers[0] = NaiveBayesTransformer(y, self.list_of_classes[-1])
-            self.nb_transformers[0].fit(X)
-            X_transformed = self.nb_transformers[0].transform(X)
+            X_transformed = self.nb_transformers[0].fit_transform(X)
             # just handle like a "vanilla" sklearn classifier
             self.ovr_classifiers[0].fit(X_transformed, y)
             # update weights with interpolation
@@ -161,8 +160,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             for l, clf in self.ovr_classifiers.items():
                 # transform X for this particular label
                 self.nb_transformers[l] = NaiveBayesTransformer(y, l)
-                self.nb_transformers[l].fit(X)
-                X_transformed = self.nb_transformers[l].transform(X)
+                X_transformed = self.nb_transformers[l].fit_transform(X)
                 # fit individual classifier with transformed data
                 clf.fit(X_transformed, labels_dict[l])
                 # update weights with interpolation
