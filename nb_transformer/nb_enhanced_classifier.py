@@ -219,19 +219,19 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
 
         ~/anaconda3/envs/nb_plus_svm/lib/python3.6/site-packages/sklearn/metrics/classification.py in _check_targets(y_true, y_pred)
              69     y_pred : array or indicator matrix
-             70     """
-        ---> 71     check_consistent_length(y_true, y_pred)
-        72     type_true = type_of_target(y_true)
-        73     type_pred = type_of_target(y_pred)
+             70
+            ---> 71     check_consistent_length(y_true, y_pred)
+            72     type_true = type_of_target(y_true)
+            73     type_pred = type_of_target(y_pred)
 
-        ~/anaconda3/envs/nb_plus_svm/lib/python3.6/site-packages/sklearn/utils/validation.py in check_consistent_length(*arrays)
-        171     if len(uniques) > 1:
-            172         raise ValueError("Found input variables with inconsistent numbers of"
-                                         --> 173                          " samples: %r" % [int(l) for l in lengths])
-        174
-        175
+            ~/anaconda3/envs/nb_plus_svm/lib/python3.6/site-packages/sklearn/utils/validation.py in check_consistent_length(*arrays)
+            171     if len(uniques) > 1:
+                172         raise ValueError("Found input variables with inconsistent numbers of"
+                                             --> 173                          " samples: %r" % [int(l) for l in lengths])
+            174
+            175
 
-        ValueError: Found input variables with inconsistent numbers of samples: [7532, 2]
+            ValueError: Found input variables with inconsistent numbers of samples: [7532, 2]
         """
         if not self.multiclass:
             # transform X
