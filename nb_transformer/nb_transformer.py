@@ -5,7 +5,6 @@ from sklearn.base import (
     TransformerMixin
 )
 from sklearn.utils import (
-    check_X_y,
     check_array,
     assert_all_finite
 )

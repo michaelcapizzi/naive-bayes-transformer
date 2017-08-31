@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import sparse
 from collections import OrderedDict
 import warnings
 from sklearn.base import BaseEstimator, ClassifierMixin
@@ -126,11 +127,15 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             Returns self
 
         """
-        X, y = check_X_y(X, y)
+        X, y = check_X_y(
+            X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X,
+            y
+        )
         if not self.multiclass:
             # transform X
             # considering last label in self.list_of_classes as the `positive`
             self.nb_transformers[0] = NaiveBayesTransformer(y, self.list_of_classes[-1])
+            self.nb_transformers[0].fit(X)
             X_transformed = self.nb_transformers[0].transform(X)
             # just handle like a "vanilla" sklearn classifier
             self.ovr_classifiers[0].fit(X_transformed, y)
@@ -155,6 +160,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             for l, clf in self.ovr_classifiers.items():
                 # transform X for this particular label
                 self.nb_transformers[l] = NaiveBayesTransformer(y, l)
+                self.nb_transformers[l].fit(X)
                 X_transformed = self.nb_transformers[l].transform(X)
                 # fit individual classifier with transformed data
                 clf.fit(X_transformed, labels_dict[l])
@@ -238,7 +244,9 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             return np.array(all_distances)
 
     def predict(self, X):
-        X = check_array(X)
+        X = check_array(
+            X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X
+        )
         """
         Calls `.predict()` directly (in the binary-class case) or
         calls `.decision_function()` for each Classifier and then returns label of most confidence
