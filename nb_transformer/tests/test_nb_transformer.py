@@ -19,6 +19,8 @@ sample_nb_transform = NaiveBayesTransformer(
     label_of_interest=1
 )
 
+sample_nb_transform.fit(sample_feature_matrix)
+
 
 def test_get_positive_rows():
     assert_almost_equal(
@@ -48,7 +50,7 @@ def test_get_r():
 def test_transform():
     transformed_features = sample_nb_transform.transform(sample_feature_matrix)
     assert_almost_equal(
-        transformed_features.toarray(),
+        transformed_features,
         np.array(
             [[0.405, 0.405, 0.0,  0.0,  0.0, 0.0],
              [0.0, 0.405, 0.0, 0.0, 0.405, 0.0],

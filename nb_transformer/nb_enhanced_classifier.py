@@ -2,9 +2,13 @@ import numpy as np
 from collections import OrderedDict
 import warnings
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.utils import check_X_y, check_array
 from sklearn.preprocessing import label_binarize
 from sklearn.svm import LinearSVC
 from nb_transformer import NaiveBayesTransformer
+
+
+# TODO look at http://scikit-learn.org/stable/developers/contributing.html#rolling-your-own-estimator
 
 
 class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
@@ -122,6 +126,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             Returns self
 
         """
+        X, y = check_X_y(X, y)
         if not self.multiclass:
             # transform X
             # considering last label in self.list_of_classes as the `positive`
@@ -233,6 +238,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             return np.array(all_distances)
 
     def predict(self, X):
+        X = check_array(X)
         """
         Calls `.predict()` directly (in the binary-class case) or
         calls `.decision_function()` for each Classifier and then returns label of most confidence
