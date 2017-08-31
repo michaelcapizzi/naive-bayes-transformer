@@ -221,7 +221,15 @@ class NaiveBayesTransformer(BaseEstimator,TransformerMixin):
 
     def fit_transform(self, X, y=None):
         """Runs fit() and transform() together."""
-        X, y = check_X_y(X, y)
+        if np.any(y):
+            X, y = check_X_y(
+                X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X,
+                y
+            )
+        else:
+            X = check_array(
+                X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X
+            )
         assert_all_finite(X)
         if y is None:
             # fit method of arity 1 (unsupervised transformation)
