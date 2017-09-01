@@ -86,7 +86,7 @@ def test_predict_multi():
 
 def test_clf_without_decision_function():
     non_decision_cls = NaiveBayesEnhancedClassifier(
-        clf=RandomForestClassifier()
+        base_clf=RandomForestClassifier()
     )
     non_decision_cls.fit(sample_feature_matrix, multiclass_sample_labels)
     decisions = non_decision_cls.decision_function_predict_proba(sample_test_features)

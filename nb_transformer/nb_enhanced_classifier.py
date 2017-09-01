@@ -2,8 +2,15 @@ import numpy as np
 from scipy import sparse
 from collections import OrderedDict
 import warnings
-from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.utils import check_X_y, check_array
+from sklearn.base import (
+    BaseEstimator,
+    ClassifierMixin
+)
+from sklearn.utils import (
+    check_X_y,
+    check_array
+)
+from sklearn.utils.validation import check_is_fitted
 from sklearn.preprocessing import label_binarize
 from sklearn.svm import LinearSVC
 from nb_transformer import NaiveBayesTransformer
@@ -22,9 +29,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
 
     Parameters
     ----------
-    list_of_possible_classes: list
-        A <list> of all possible labels that are used in the training set
-    clf:
+    clf_:
         Any instantiated `sklearn` classifier that
         has either the attribute `.decision_function()` or `.predict_proba()`
     interpolation_factor: float
@@ -41,7 +46,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
 
     """
     def __init__(self,
-                 clf=LinearSVC(
+                 base_clf=LinearSVC(
                      loss='squared_hinge',
                      penalty='l2',
                      class_weight='balanced',
@@ -49,9 +54,16 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
                  ),
                  interpolation_factor=0.25
                  ):
-        self.clf = clf
-        self.interpolation_factor = interpolation_factor if interpolation_factor else 1.0
-        self.nb_transformers = {}
+        self.base_clf = base_clf
+        self.interpolation_factor = interpolation_factor
+
+    # def get_params(self, deep=True):
+    #     return self.base_clf.get_params()
+
+    # def set_params(self, **parameters):
+    #     for parameter, value in parameters.items():
+    #         self.setattr(parameter, value)
+    #     return self
 
     @staticmethod
     def _build_ovr_classifiers(list_of_all_possible_classes, classifier_instance):
@@ -128,20 +140,23 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X,
             y
         )
-        self.list_of_classes = list(set(sorted(y)))
-        self.multiclass, self.ovr_classifiers = self._build_ovr_classifiers(
-            self.list_of_classes, self.clf
+        self.classes_, y = np.unique(y, return_inverse=True)
+        self.multiclass_, self.ovr_classifiers_ = self._build_ovr_classifiers(
+            self.classes_, self.base_clf
         )
-        if not self.multiclass:
+        self.X_ = X
+        self.y_ = y
+        self.nb_transformers = {}
+        if not self.multiclass_:
             # transform X
-            # considering last label in self.list_of_classes as the `positive`
-            self.nb_transformers[0] = NaiveBayesTransformer(y, self.list_of_classes[-1])
+            # considering last label in self.classes_ as the `positive`
+            self.nb_transformers[0] = NaiveBayesTransformer(y, self.classes_[-1])
             X_transformed = self.nb_transformers[0].fit_transform(X)
             # just handle like a "vanilla" sklearn classifier
-            self.ovr_classifiers[0].fit(X_transformed, y)
+            self.ovr_classifiers_[0].fit(X_transformed, y)
             # update weights with interpolation
             try:
-                self.ovr_classifiers[0].coef_ = self._interpolate(self.ovr_classifiers[0].coef_)
+                self.ovr_classifiers_[0].coef_ = self._interpolate(self.ovr_classifiers_[0].coef_)
             except:
                 warnings.warn(
                     "the classifier you instantiated does not have an attribute `.coef_`; "
@@ -151,13 +166,13 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             # handle with 'one-v-rest' approach
             # binarize labels
             labels_dict = self._binarize_labels(y)
-            if labels_dict.keys() != self.ovr_classifiers.keys():
+            if labels_dict.keys() != self.ovr_classifiers_.keys():
                 raise Exception(
                     "mismatch in labels during fit() and class instantiation; {} != {}".format(
-                        labels_dict.keys(), self.ovr_classifiers.keys()
+                        labels_dict.keys(), self.ovr_classifiers_.keys()
                     )
                 )
-            for l, clf in self.ovr_classifiers.items():
+            for l, clf in self.ovr_classifiers_.items():
                 # transform X for this particular label
                 self.nb_transformers[l] = NaiveBayesTransformer(y, l)
                 X_transformed = self.nb_transformers[l].fit_transform(X)
@@ -167,11 +182,12 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
                 try:
                     clf.coef_ = self._interpolate(clf.coef_)
                 except:
-                    if l == list(self.ovr_classifiers.keys())[0]:
+                    if l == list(self.ovr_classifiers_.keys())[0]:
                         warnings.warn(
                             "the classifier you instantiated does not have an attribute `.coef_`; "
                             "interpolation will not occur"
                         )
+        return self
 
     def _interpolate(self, coeffs):
         """
@@ -187,6 +203,10 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
         interpolated_coeffs: array-like with size of shape = [1, n_features]
             updated coefficients/weights for the Classifier to use in predictions
         """
+        if self.interpolation_factor is not None:
+            self.interpolation_factor = self.interpolation_factor
+        else:
+            self.interpolation_factor = 1.0
         # calculate mean magnitude
         mean_magnitude = np.sum(coeffs)/coeffs.shape[1]
         mean_magnitude_vector = np.full(coeffs.shape, mean_magnitude)
@@ -209,22 +229,26 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
         all_distances: array-like with shape = [n_labels, n_samples]
 
         """
-        if not self.multiclass:
+        check_is_fitted(self, ['X_', 'y_'])
+        X = check_array(
+            X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X
+        )
+        if not self.multiclass_:
             # transform X
             X_transformed = self.nb_transformers[0].transform(X)
-            if hasattr(self.ovr_classifiers[0], "decision_function"):
-                final_distance = self.ovr_classifiers[0].decision_function(X_transformed)
+            if hasattr(self.ovr_classifiers_[0], "decision_function"):
+                final_distance = self.ovr_classifiers_[0].decision_function(X_transformed)
             else:
                 warnings.warn(
                     "classifier you instantiated does not have a method, `decision_function()`; "
                     "using `predict_proba()` instead"
                 )
-                final_distance = self.ovr_classifiers[0].predict_proba(X_transformed)
+                final_distance = self.ovr_classifiers_[0].predict_proba(X_transformed)
             return final_distance
         else:
             # handle with 'one-v-rest' approach
             all_distances = None
-            for l, clf in self.ovr_classifiers.items():
+            for l, clf in self.ovr_classifiers_.items():
                 # transform X
                 X_transformed = self.nb_transformers[l].transform(X)
                 if hasattr(clf, "decision_function"):
@@ -243,9 +267,6 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             return np.array(all_distances)
 
     def predict(self, X):
-        X = check_array(
-            X.toarray() if isinstance(X, sparse.csr.csr_matrix) else X
-        )
         """
         Calls `.predict()` directly (in the binary-class case) or
         calls `.decision_function()` for each Classifier and then returns label of most confidence
@@ -261,10 +282,10 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             The predicted label(s)
 
         """
-        if not self.multiclass:
+        if not self.multiclass_:
             # transform X
             X_transformed = self.nb_transformers[0].transform(X)
-            return self.ovr_classifiers[0].predict(X_transformed)
+            return self.ovr_classifiers_[0].predict(X_transformed)
         else:
             # get all boundary distances or probabilities
             all_distances_probs = self.decision_function_predict_proba(X)
