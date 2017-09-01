@@ -26,7 +26,7 @@ sample_test_features = sparse.csr_matrix(
 
 binary_example = NaiveBayesEnhancedClassifier(interpolation_factor=0.5)
 
-multiclass_example = NaiveBayesEnhancedClassifier([0, 1, 2])
+multiclass_example = NaiveBayesEnhancedClassifier()
 
 
 # def test_build_ovr_classifiers_binary():
@@ -90,4 +90,4 @@ def test_clf_without_decision_function():
     )
     non_decision_cls.fit(sample_feature_matrix, multiclass_sample_labels)
     decisions = non_decision_cls.decision_function_predict_proba(sample_test_features)
-    assert decisions.shape == (2, 3)
+    assert decisions.shape == (3, 2)

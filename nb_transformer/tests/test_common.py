@@ -7,7 +7,7 @@ def test_estimator_transformer():
 
 
 def test_estimator_classifier():
-    return check_estimator(NaiveBayesEnhancedClassifier([0, 1]))
+    return check_estimator(NaiveBayesEnhancedClassifier())
 
 
 
