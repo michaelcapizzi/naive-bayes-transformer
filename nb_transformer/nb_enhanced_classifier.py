@@ -10,6 +10,7 @@ from sklearn.utils import (
     check_X_y,
     check_array
 )
+from copy import deepcopy
 from sklearn.utils.validation import check_is_fitted
 from sklearn.preprocessing import label_binarize
 from sklearn.svm import LinearSVC
@@ -86,16 +87,17 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             A <dict> of Classifiers for each label or a single Classifier if not multiclass
         """
         all_clfs = OrderedDict()
-        for i in list_of_all_possible_classes:
+        for i in range(len(list_of_all_possible_classes)):
             all_clfs[i] = classifier_instance
         if len(all_clfs) == 2:
             # is just a binary problem!
-            del all_clfs[list_of_all_possible_classes[1]]
+            del all_clfs[1]
             return False, all_clfs
         elif len(all_clfs) > 2:
             return True, all_clfs
         else:
-            raise Exception("only one label was provided!")
+            warnings.warn("only one label was provided!")
+            return False, all_clfs
 
     @staticmethod
     def _binarize_labels(y):
@@ -141,8 +143,9 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             y
         )
         self.classes_, y = np.unique(y, return_inverse=True)
+        clf_copy = deepcopy(self.base_clf)  # needed to pass an estimators
         self.multiclass_, self.ovr_classifiers_ = self._build_ovr_classifiers(
-            self.classes_, self.base_clf
+            self.classes_, clf_copy
         )
         self.X_ = X
         self.y_ = y
@@ -290,4 +293,5 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
             # get all boundary distances or probabilities
             all_distances_probs = self.decision_function_predict_proba(X)
             # return most positive (or least negative) margin/probability
-            return np.argmax(all_distances_probs, axis=0)
+            # return [self._index_to_label(idx) for idx in np.argmax(all_distances_probs, axis=0)]
+            return self.classes_[np.argmax(all_distances_probs, axis=0)]
