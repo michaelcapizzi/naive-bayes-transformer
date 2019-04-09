@@ -30,7 +30,7 @@ class NaiveBayesEnhancedClassifier(BaseEstimator, ClassifierMixin):
 
     Parameters
     ----------
-    clf_:
+    base_clf_:
         Any instantiated `sklearn` classifier that
         has either the attribute `.decision_function()` or `.predict_proba()`
     interpolation_factor: float
